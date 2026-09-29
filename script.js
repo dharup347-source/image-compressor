@@ -10,302 +10,593 @@ const compressedSize = document.getElementById("compressedSize");
 const quality = document.getElementById("quality");
 const qualityValue = document.getElementById("qualityValue");
 
-const compressButton = document.getElementById("compressButton");
-const downloadButton = document.getElementById("downloadButton");
-const resetButton = document.getElementById("resetButton");
+const formatSelect = document.getElementById("format");
 
-const result = document.getElementById("result");
-const savingPercent = document.getElementById("savingPercent");
+const compressButton =
+    document.getElementById("compressButton");
+
+const downloadButton =
+    document.getElementById("downloadButton");
+
+const resetButton =
+    document.getElementById("resetButton");
+
+const result =
+    document.getElementById("result");
+
+const savingPercent =
+    document.getElementById("savingPercent");
+
 
 let selectedFile = null;
 let compressedBlob = null;
 
 
-/* -----------------------------
-   File size formatter
------------------------------ */
+/* -------------------------
+   Format file size
+------------------------- */
 
 function formatSize(bytes) {
+
     if (bytes < 1024) {
         return bytes + " B";
     }
 
     if (bytes < 1024 * 1024) {
-        return (bytes / 1024).toFixed(1) + " KB";
+        return (
+            bytes / 1024
+        ).toFixed(1) + " KB";
     }
 
-    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+    return (
+        bytes /
+        (1024 * 1024)
+    ).toFixed(2) + " MB";
 }
 
 
-/* -----------------------------
-   Open file
------------------------------ */
-
-fileInput.addEventListener("change", function () {
-
-    if (fileInput.files.length > 0) {
-        loadImage(fileInput.files[0]);
-    }
-
-});
-
-
-/* -----------------------------
+/* -------------------------
    Load image
------------------------------ */
+------------------------- */
 
 function loadImage(file) {
 
     if (!file.type.startsWith("image/")) {
-        alert("Please select an image file.");
+
+        alert(
+            "Please select a JPG, PNG or WebP image."
+        );
+
         return;
     }
 
+
     selectedFile = file;
 
-    originalSize.textContent = formatSize(file.size);
-    compressedSize.textContent = "—";
+    originalSize.textContent =
+        formatSize(file.size);
 
-    const reader = new FileReader();
+    compressedSize.textContent =
+        "—";
 
-    reader.onload = function (event) {
 
-        previewImage.src = event.target.result;
+    const reader =
+        new FileReader();
 
-        uploadArea.classList.add("hidden");
-        editor.classList.remove("hidden");
 
-        result.classList.add("hidden");
-        downloadButton.classList.add("hidden");
+    reader.onload = function(event) {
+
+        previewImage.src =
+            event.target.result;
+
+        uploadArea.classList.add(
+            "hidden"
+        );
+
+        editor.classList.remove(
+            "hidden"
+        );
+
+        result.classList.add(
+            "hidden"
+        );
+
+        downloadButton.classList.add(
+            "hidden"
+        );
 
         compressedBlob = null;
 
+        compressButton.disabled =
+            false;
+
+        compressButton.textContent =
+            "Compress Image";
     };
+
 
     reader.readAsDataURL(file);
 }
 
 
-/* -----------------------------
+/* -------------------------
+   File selection
+------------------------- */
+
+fileInput.addEventListener(
+    "change",
+    function() {
+
+        if (
+            fileInput.files &&
+            fileInput.files.length > 0
+        ) {
+
+            loadImage(
+                fileInput.files[0]
+            );
+        }
+
+    }
+);
+
+
+/* -------------------------
    Quality slider
------------------------------ */
+------------------------- */
 
-quality.addEventListener("input", function () {
+quality.addEventListener(
+    "input",
+    function() {
 
-    qualityValue.textContent = quality.value + "%";
+        qualityValue.textContent =
+            quality.value + "%";
 
-});
+    }
+);
 
 
-/* -----------------------------
-   Compress image
------------------------------ */
+/* -------------------------
+   Get output format
+------------------------- */
 
-compressButton.addEventListener("click", function () {
+function getOutputFormat() {
 
-    if (!selectedFile) {
-        return;
+    const selected =
+        formatSelect.value;
+
+
+    if (selected === "jpeg") {
+
+        return {
+            type: "image/jpeg",
+            extension: "jpg"
+        };
     }
 
-    compressButton.disabled = true;
-    compressButton.textContent = "Compressing...";
+
+    if (selected === "webp") {
+
+        return {
+            type: "image/webp",
+            extension: "webp"
+        };
+    }
 
 
-    const image = new Image();
+    if (selected === "png") {
 
-    image.onload = function () {
-
-        const canvas = document.createElement("canvas");
-
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
-
-        const ctx = canvas.getContext("2d");
-
-        ctx.drawImage(
-            image,
-            0,
-            0,
-            canvas.width,
-            canvas.height
-        );
+        return {
+            type: "image/png",
+            extension: "png"
+        };
+    }
 
 
-        let outputType = "image/jpeg";
+    /* AUTO */
 
-        if (selectedFile.type === "image/webp") {
-            outputType = "image/webp";
+    if (
+        selectedFile.type ===
+        "image/webp"
+    ) {
+
+        return {
+            type: "image/webp",
+            extension: "webp"
+        };
+    }
+
+
+    if (
+        selectedFile.type ===
+        "image/png"
+    ) {
+
+        /*
+         * PNG transparency is preserved
+         * by keeping PNG in Auto mode.
+         */
+
+        return {
+            type: "image/png",
+            extension: "png"
+        };
+    }
+
+
+    return {
+        type: "image/jpeg",
+        extension: "jpg"
+    };
+}
+
+
+/* -------------------------
+   Compress image
+------------------------- */
+
+compressButton.addEventListener(
+    "click",
+    function() {
+
+        if (!selectedFile) {
+            return;
         }
 
 
-        const qualityValueNumber =
-            Number(quality.value) / 100;
+        compressButton.disabled =
+            true;
+
+        compressButton.textContent =
+            "Compressing...";
 
 
-        canvas.toBlob(
-            function (blob) {
+        const image =
+            new Image();
 
-                if (!blob) {
 
-                    alert("Compression failed.");
+        image.onload =
+            function() {
 
-                    compressButton.disabled = false;
-                    compressButton.textContent =
-                        "Compress Image";
+                const canvas =
+                    document.createElement(
+                        "canvas"
+                    );
 
-                    return;
+
+                canvas.width =
+                    image.naturalWidth;
+
+                canvas.height =
+                    image.naturalHeight;
+
+
+                const ctx =
+                    canvas.getContext(
+                        "2d"
+                    );
+
+
+                /*
+                 * White background is used
+                 * only for JPG because JPG
+                 * doesn't support transparency.
+                 */
+
+                const output =
+                    getOutputFormat();
+
+
+                if (
+                    output.type ===
+                    "image/jpeg"
+                ) {
+
+                    ctx.fillStyle =
+                        "#ffffff";
+
+                    ctx.fillRect(
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height
+                    );
                 }
 
 
-                compressedBlob = blob;
-
-                compressedSize.textContent =
-                    formatSize(blob.size);
-
-
-                const saved =
-                    ((selectedFile.size - blob.size)
-                    / selectedFile.size) * 100;
+                ctx.drawImage(
+                    image,
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
 
 
-                const percentage =
-                    Math.max(0, saved);
+                /*
+                 * PNG does not use the
+                 * quality parameter in
+                 * Canvas.toBlob().
+                 */
+
+                const compressionQuality =
+                    output.type ===
+                    "image/png"
+                        ? undefined
+                        : Number(
+                            quality.value
+                          ) / 100;
 
 
-                savingPercent.textContent =
-                    percentage.toFixed(1) + "%";
+                canvas.toBlob(
+
+                    function(blob) {
+
+                        if (!blob) {
+
+                            alert(
+                                "This format is not supported by your browser."
+                            );
+
+                            compressButton.disabled =
+                                false;
+
+                            compressButton.textContent =
+                                "Compress Image";
+
+                            return;
+                        }
 
 
-                result.classList.remove("hidden");
+                        compressedBlob =
+                            blob;
 
-                downloadButton.classList.remove("hidden");
+
+                        compressedSize.textContent =
+                            formatSize(
+                                blob.size
+                            );
 
 
-                compressButton.disabled = false;
+                        const saved =
+                            (
+                                (
+                                    selectedFile.size -
+                                    blob.size
+                                ) /
+                                selectedFile.size
+                            ) * 100;
+
+
+                        const percentage =
+                            Math.max(
+                                0,
+                                saved
+                            );
+
+
+                        savingPercent.textContent =
+                            percentage.toFixed(
+                                1
+                            ) + "%";
+
+
+                        result.classList.remove(
+                            "hidden"
+                        );
+
+
+                        downloadButton.classList.remove(
+                            "hidden"
+                        );
+
+
+                        compressButton.disabled =
+                            false;
+
+                        compressButton.textContent =
+                            "Compress Again";
+
+                    },
+
+                    output.type,
+
+                    compressionQuality
+
+                );
+
+            };
+
+
+        image.onerror =
+            function() {
+
+                alert(
+                    "Could not read this image."
+                );
+
+                compressButton.disabled =
+                    false;
+
                 compressButton.textContent =
-                    "Compress Again";
+                    "Compress Image";
+            };
 
-            },
-            outputType,
-            qualityValueNumber
+
+        image.src =
+            previewImage.src;
+
+    }
+);
+
+
+/* -------------------------
+   Download
+------------------------- */
+
+downloadButton.addEventListener(
+    "click",
+    function() {
+
+        if (!compressedBlob) {
+            return;
+        }
+
+
+        const output =
+            getOutputFormat();
+
+
+        const url =
+            URL.createObjectURL(
+                compressedBlob
+            );
+
+
+        const link =
+            document.createElement(
+                "a"
+            );
+
+
+        const originalName =
+            selectedFile.name
+                .replace(
+                    /\.[^/.]+$/,
+                    ""
+                );
+
+
+        link.href = url;
+
+
+        link.download =
+            "compressed-" +
+            originalName +
+            "." +
+            output.extension;
+
+
+        document.body.appendChild(
+            link
         );
 
-    };
+
+        link.click();
 
 
-    image.onerror = function () {
+        document.body.removeChild(
+            link
+        );
 
-        alert("Could not read this image.");
 
-        compressButton.disabled = false;
+        URL.revokeObjectURL(
+            url
+        );
+
+    }
+);
+
+
+/* -------------------------
+   Reset
+------------------------- */
+
+resetButton.addEventListener(
+    "click",
+    function() {
+
+        selectedFile = null;
+
+        compressedBlob = null;
+
+        fileInput.value = "";
+
+        previewImage.src = "";
+
+        uploadArea.classList.remove(
+            "hidden"
+        );
+
+        editor.classList.add(
+            "hidden"
+        );
+
+        result.classList.add(
+            "hidden"
+        );
+
+        downloadButton.classList.add(
+            "hidden"
+        );
+
+        compressedSize.textContent =
+            "—";
+
+        compressButton.disabled =
+            false;
+
         compressButton.textContent =
             "Compress Image";
 
-    };
-
-
-    image.src = previewImage.src;
-
-});
-
-
-/* -----------------------------
-   Download compressed image
------------------------------ */
-
-downloadButton.addEventListener("click", function () {
-
-    if (!compressedBlob) {
-        return;
     }
+);
 
 
-    const url =
-        URL.createObjectURL(compressedBlob);
+/* -------------------------
+   Drag & Drop
+------------------------- */
 
+uploadArea.addEventListener(
+    "dragover",
+    function(event) {
 
-    const link =
-        document.createElement("a");
+        event.preventDefault();
 
+        uploadArea.classList.add(
+            "dragging"
+        );
 
-    link.href = url;
-
-    link.download =
-        "compressed-" +
-        selectedFile.name.replace(/\.[^/.]+$/, "") +
-        ".jpg";
-
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    document.body.removeChild(link);
-
-    URL.revokeObjectURL(url);
-
-});
-
-
-/* -----------------------------
-   Reset
------------------------------ */
-
-resetButton.addEventListener("click", function () {
-
-    selectedFile = null;
-    compressedBlob = null;
-
-    fileInput.value = "";
-
-    previewImage.src = "";
-
-    uploadArea.classList.remove("hidden");
-    editor.classList.add("hidden");
-
-    result.classList.add("hidden");
-    downloadButton.classList.add("hidden");
-
-    compressedSize.textContent = "—";
-
-    compressButton.disabled = false;
-    compressButton.textContent =
-        "Compress Image";
-
-});
-
-
-/* -----------------------------
-   Drag & drop
------------------------------ */
-
-uploadArea.addEventListener("dragover", function (event) {
-
-    event.preventDefault();
-
-    uploadArea.classList.add("dragging");
-
-});
-
-
-uploadArea.addEventListener("dragleave", function () {
-
-    uploadArea.classList.remove("dragging");
-
-});
-
-
-uploadArea.addEventListener("drop", function (event) {
-
-    event.preventDefault();
-
-    uploadArea.classList.remove("dragging");
-
-    const files = event.dataTransfer.files;
-
-    if (files.length > 0) {
-        loadImage(files[0]);
     }
+);
 
-});
+
+uploadArea.addEventListener(
+    "dragleave",
+    function() {
+
+        uploadArea.classList.remove(
+            "dragging"
+        );
+
+    }
+);
+
+
+uploadArea.addEventListener(
+    "drop",
+    function(event) {
+
+        event.preventDefault();
+
+        uploadArea.classList.remove(
+            "dragging"
+        );
+
+
+        const files =
+            event.dataTransfer.files;
+
+
+        if (
+            files &&
+            files.length > 0
+        ) {
+
+            loadImage(
+                files[0]
+            );
+        }
+
+    }
+);
