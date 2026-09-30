@@ -1,160 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>ImageCompress — Compress Images Online</title>
-  <meta name="description" content="Compress JPG, PNG and WebP images online for free. Fast, private and easy to use.">
-  <meta name="keywords" content="image compressor, compress image, JPG compressor, PNG compressor, WebP compressor">
+    <title>ImageCompress - Free Online Image Compressor</title>
 
-  <link rel="stylesheet" href="style.css">
+    <meta name="description"
+        content="Compress JPG, PNG and WebP images online for free. Fast, private and works directly in your browser.">
+
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <header class="header">
+<header>
     <div class="logo">Image<span>Compress</span></div>
-    <div class="privacy">🔒 100% Private</div>
-  </header>
+    <div class="privacy">🔒 Private</div>
+</header>
 
-  <main>
+<main>
 
     <section class="hero">
-      <h1>Compress Images<br><span>Without Losing Quality</span></h1>
-      <p>Reduce image size quickly and easily. Your images stay on your device.</p>
+        <h1>Compress Images<br><span>Instantly.</span></h1>
+        <p>
+            Reduce image file size while keeping great quality.
+            Your images never leave your device.
+        </p>
     </section>
 
-    <section class="compressor">
 
-      <div class="upload-box" id="uploadBox">
+    <section class="tool">
 
-        <div class="upload-icon">📸</div>
+        <div class="upload-box" id="uploadBox">
 
-        <h2>Drop your image here</h2>
-        <p>or choose an image from your device</p>
+            <div class="upload-icon">📷</div>
 
-        <label for="fileInput" class="upload-button">
-          Choose Image
-        </label>
+            <h2>Select an Image</h2>
 
-        <input
-          type="file"
-          id="fileInput"
-          accept="image/jpeg,image/png,image/webp"
-          hidden
-        >
+            <p>JPG, PNG or WebP</p>
 
-        <small>JPG • PNG • WebP</small>
+            <label for="fileInput" class="choose-btn">
+                Choose Image
+            </label>
 
-      </div>
+            <input
+                type="file"
+                id="fileInput"
+                accept="image/jpeg,image/png,image/webp"
+                hidden
+            >
 
-      <div class="controls">
+            <small>or drag & drop here</small>
 
-        <div class="control-group">
-          <label for="quality">
-            Quality
-            <strong id="qualityValue">80%</strong>
-          </label>
-
-          <input
-            type="range"
-            id="quality"
-            min="10"
-            max="100"
-            value="80"
-          >
         </div>
 
-        <div class="control-group">
-          <label for="format">Output format</label>
 
-          <select id="format">
-            <option value="auto">Auto</option>
-            <option value="jpeg">JPG</option>
-            <option value="webp">WebP</option>
-            <option value="png">PNG</option>
-          </select>
+        <div class="controls">
+
+            <div>
+                <label>
+                    Quality
+                    <b id="qualityValue">80%</b>
+                </label>
+
+                <input
+                    type="range"
+                    id="quality"
+                    min="10"
+                    max="100"
+                    value="80"
+                >
+            </div>
+
+
+            <div>
+                <label for="format">Format</label>
+
+                <select id="format">
+                    <option value="auto">Auto</option>
+                    <option value="jpeg">JPG</option>
+                    <option value="webp">WebP</option>
+                    <option value="png">PNG</option>
+                </select>
+            </div>
+
         </div>
 
-      </div>
 
-      <button id="compressBtn" class="compress-button" disabled>
-        Compress Image
-      </button>
+        <button id="compressBtn" disabled>
+            Compress Image
+        </button>
 
     </section>
 
-    <!-- RESULTS -->
 
     <section class="results" id="results">
 
-      <div class="result-header">
-        <h2>Your Result</h2>
-        <span id="savings">0% smaller</span>
-      </div>
-
-      <div class="preview-grid">
-
-        <div class="preview-card">
-          <h3>Original</h3>
-
-          <div class="preview-image">
-            <img id="originalPreview" alt="Original image preview">
-          </div>
-
-          <p id="originalSize">—</p>
+        <div class="result-title">
+            <h2>Compression Result</h2>
+            <span id="savings">Waiting...</span>
         </div>
 
-        <div class="preview-card">
-          <h3>Compressed</h3>
 
-          <div class="preview-image">
-            <img id="compressedPreview" alt="Compressed image preview">
-          </div>
+        <div class="preview-grid">
 
-          <p id="compressedSize">—</p>
+            <div class="preview-card">
+
+                <h3>Original</h3>
+
+                <div class="preview">
+                    <img id="originalPreview" alt="Original image">
+                </div>
+
+                <p id="originalSize">—</p>
+
+            </div>
+
+
+            <div class="preview-card">
+
+                <h3>Compressed</h3>
+
+                <div class="preview">
+                    <img id="compressedPreview" alt="Compressed image">
+                </div>
+
+                <p id="compressedSize">—</p>
+
+            </div>
+
         </div>
 
-      </div>
 
-      <a id="downloadBtn" class="download-button">
-        ⬇ Download Compressed Image
-      </a>
+        <a id="downloadBtn" class="download-btn">
+            ⬇ Download Image
+        </a>
 
     </section>
 
-    <!-- FEATURES -->
 
     <section class="features">
 
-      <div class="feature">
-        <div>⚡</div>
-        <h3>Fast</h3>
-        <p>Images are processed directly in your browser.</p>
-      </div>
+        <div>
+            <strong>⚡</strong>
+            <h3>Fast</h3>
+            <p>Compression happens directly in your browser.</p>
+        </div>
 
-      <div class="feature">
-        <div>🔒</div>
-        <h3>Private</h3>
-        <p>Your images aren't uploaded to a server.</p>
-      </div>
+        <div>
+            <strong>🔒</strong>
+            <h3>Private</h3>
+            <p>Your images are never uploaded.</p>
+        </div>
 
-      <div class="feature">
-        <div>📱</div>
-        <h3>Mobile Friendly</h3>
-        <p>Works smoothly on phones, tablets and computers.</p>
-      </div>
+        <div>
+            <strong>📱</strong>
+            <h3>Mobile</h3>
+            <p>Designed to work perfectly on phones.</p>
+        </div>
 
     </section>
 
-  </main>
+</main>
 
-  <footer>
-    <p>© 2026 ImageCompress • Free image compression</p>
-  </footer>
 
-  <script src="script.js"></script>
+<footer>
+    © 2026 ImageCompress
+</footer>
+
+
+<script src="script.js"></script>
 
 </body>
 </html>
