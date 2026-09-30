@@ -265,7 +265,7 @@ compressBtn.addEventListener("click", async function () {
     compressBtn.disabled = true;
 
     compressBtn.textContent =
-        "Compressing...";
+        "Starting compression...";
 
 
     resultsList.innerHTML = "";
@@ -277,6 +277,17 @@ compressBtn.addEventListener("click", async function () {
 
 
     for (let i = 0; i < selectedFiles.length; i++) {
+
+        // -------------------------
+        // PROGRESS
+        // -------------------------
+
+        compressBtn.textContent =
+            "Compressing " +
+            (i + 1) +
+            " / " +
+            selectedFiles.length;
+
 
         try {
 
