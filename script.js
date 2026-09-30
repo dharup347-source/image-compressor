@@ -19,50 +19,57 @@ const downloadBtn = document.getElementById("downloadBtn");
 
 let selectedFile = null;
 let compressedBlob = null;
+let originalURL = null;
+let compressedURL = null;
 
 
-// -----------------------------
-// FILE SIZE FORMATTER
-// -----------------------------
+// -------------------------
+// FILE SIZE
+// -------------------------
 
 function formatBytes(bytes) {
-    if (bytes === 0) return "0 Bytes";
+    if (bytes < 1024) {
+        return bytes + " B";
+    }
 
-    const units = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    if (bytes < 1024 * 1024) {
+        return (bytes / 1024).toFixed(1) + " KB";
+    }
 
-    return (
-        (bytes / Math.pow(1024, i)).toFixed(i === 0 ? 0 : 2) +
-        " " +
-        units[i]
-    );
+    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
 }
 
 
-// -----------------------------
-// FILE SELECTION
-// -----------------------------
+// -------------------------
+// SELECT IMAGE
+// -------------------------
 
 fileInput.addEventListener("change", function () {
 
-    if (!fileInput.files.length) return;
+    if (!fileInput.files || !fileInput.files[0]) {
+        return;
+    }
 
     selectedFile = fileInput.files[0];
 
-    showSelectedFile();
+    displayOriginal();
 
 });
 
 
-// -----------------------------
-// SHOW ORIGINAL IMAGE
-// -----------------------------
+// -------------------------
+// DISPLAY ORIGINAL
+// -------------------------
 
-function showSelectedFile() {
+function displayOriginal() {
 
-    const imageURL = URL.createObjectURL(selectedFile);
+    if (originalURL) {
+        URL.revokeObjectURL(originalURL);
+    }
 
-    originalPreview.src = imageURL;
+    originalURL = URL.createObjectURL(selectedFile);
+
+    originalPreview.src = originalURL;
 
     originalSize.textContent =
         "Size: " + formatBytes(selectedFile.size);
@@ -71,7 +78,7 @@ function showSelectedFile() {
 
     compressedSize.textContent = "—";
 
-    savings.textContent = "Waiting...";
+    savings.textContent = "Ready";
 
     results.style.display = "block";
 
@@ -80,20 +87,21 @@ function showSelectedFile() {
 }
 
 
-// -----------------------------
-// QUALITY SLIDER
-// -----------------------------
+// -------------------------
+// QUALITY
+// -------------------------
 
 quality.addEventListener("input", function () {
 
-    qualityValue.textContent = quality.value + "%";
+    qualityValue.textContent =
+        quality.value + "%";
 
 });
 
 
-// -----------------------------
+// -------------------------
 // DRAG & DROP
-// -----------------------------
+// -------------------------
 
 uploadBox.addEventListener("dragover", function (event) {
 
@@ -103,13 +111,11 @@ uploadBox.addEventListener("dragover", function (event) {
 
 });
 
-
 uploadBox.addEventListener("dragleave", function () {
 
     uploadBox.classList.remove("dragging");
 
 });
-
 
 uploadBox.addEventListener("drop", function (event) {
 
@@ -117,50 +123,52 @@ uploadBox.addEventListener("drop", function (event) {
 
     uploadBox.classList.remove("dragging");
 
-    const files = event.dataTransfer.files;
-
-    if (!files.length) return;
-
-    if (!files[0].type.startsWith("image/")) {
-
-        alert("Please select an image file.");
-
+    if (!event.dataTransfer.files.length) {
         return;
-
     }
 
-    selectedFile = files[0];
+    const file = event.dataTransfer.files[0];
 
-    showSelectedFile();
+    if (!file.type.startsWith("image/")) {
+        alert("Please choose an image file.");
+        return;
+    }
+
+    selectedFile = file;
+
+    displayOriginal();
 
 });
 
 
-// -----------------------------
-// COMPRESS IMAGE
-// -----------------------------
+// -------------------------
+// COMPRESS
+// -------------------------
 
 compressBtn.addEventListener("click", function () {
 
-    if (!selectedFile) return;
+    if (!selectedFile) {
+        return;
+    }
 
     compressBtn.disabled = true;
     compressBtn.textContent = "Compressing...";
 
-    const img = new Image();
+    const image = new Image();
 
-    img.onload = function () {
+    image.onload = function () {
 
         const canvas = document.createElement("canvas");
 
-        canvas.width = img.width;
-        canvas.height = img.height;
+        canvas.width = image.naturalWidth;
+        canvas.height = image.naturalHeight;
 
         const ctx = canvas.getContext("2d");
 
         let outputFormat = format.value;
 
-        // AUTO FORMAT
+
+        // AUTO
         if (outputFormat === "auto") {
 
             if (selectedFile.type === "image/webp") {
@@ -178,7 +186,7 @@ compressBtn.addEventListener("click", function () {
         }
 
 
-        // JPG needs a white background
+        // JPG BACKGROUND
         if (outputFormat === "jpeg") {
 
             ctx.fillStyle = "#ffffff";
@@ -192,8 +200,9 @@ compressBtn.addEventListener("click", function () {
 
         }
 
+
         ctx.drawImage(
-            img,
+            image,
             0,
             0,
             canvas.width,
@@ -201,118 +210,142 @@ compressBtn.addEventListener("click", function () {
         );
 
 
-        let mimeType = "image/jpeg";
+        let mimeType;
 
         if (outputFormat === "webp") {
             mimeType = "image/webp";
         }
 
-        if (outputFormat === "png") {
+        else if (outputFormat === "png") {
             mimeType = "image/png";
         }
 
+        else {
+            mimeType = "image/jpeg";
+        }
 
-        let qualityValueNumber =
+
+        const qualityNumber =
             Number(quality.value) / 100;
 
 
-        canvas.toBlob(
+        canvas.toBlob(function (blob) {
 
-            function (blob) {
+            if (!blob) {
 
-                if (!blob) {
-
-                    alert("Compression failed. Please try another image.");
-
-                    compressBtn.disabled = false;
-                    compressBtn.textContent = "Compress Image";
-
-                    return;
-
-                }
-
-                compressedBlob = blob;
-
-
-                // -----------------------------
-                // UPDATE COMPRESSED PREVIEW
-                // -----------------------------
-
-                const compressedURL =
-                    URL.createObjectURL(blob);
-
-                compressedPreview.src =
-                    compressedURL;
-
-
-                compressedSize.textContent =
-                    "Size: " + formatBytes(blob.size);
-
-
-                // -----------------------------
-                // SAVINGS
-                // -----------------------------
-
-                const percentage =
-                    ((selectedFile.size - blob.size) /
-                    selectedFile.size) * 100;
-
-
-                if (percentage > 0) {
-
-                    savings.textContent =
-                        percentage.toFixed(1) +
-                        "% smaller";
-
-                }
-
-                else {
-
-                    savings.textContent =
-                        "No size reduction";
-
-                }
-
-
-                // -----------------------------
-                // DOWNLOAD
-                // -----------------------------
-
-                const extension =
-                    outputFormat === "jpeg"
-                        ? "jpg"
-                        : outputFormat;
-
-                const baseName =
-                    selectedFile.name
-                    .replace(/\.[^/.]+$/, "");
-
-                downloadBtn.href =
-                    compressedURL;
-
-                downloadBtn.download =
-                    baseName +
-                    "-compressed." +
-                    extension;
-
+                alert(
+                    "Your browser could not create the compressed image."
+                );
 
                 compressBtn.disabled = false;
+                compressBtn.textContent = "Compress Image";
 
-                compressBtn.textContent =
-                    "Compress Again";
+                return;
+            }
 
-            },
 
-            mimeType,
+            compressedBlob = blob;
 
-            qualityValueNumber
 
-        );
+            // -------------------------
+            // COMPRESSED PREVIEW
+            // -------------------------
+
+            if (compressedURL) {
+                URL.revokeObjectURL(compressedURL);
+            }
+
+            compressedURL =
+                URL.createObjectURL(compressedBlob);
+
+            compressedPreview.onload = function () {
+
+                console.log(
+                    "Compressed preview loaded successfully."
+                );
+
+            };
+
+            compressedPreview.onerror = function () {
+
+                console.log(
+                    "Compressed preview failed to load."
+                );
+
+            };
+
+            compressedPreview.src =
+                compressedURL;
+
+
+            // -------------------------
+            // SIZE
+            // -------------------------
+
+            compressedSize.textContent =
+                "Size: " +
+                formatBytes(compressedBlob.size);
+
+
+            // -------------------------
+            // SAVINGS
+            // -------------------------
+
+            const saved =
+                ((selectedFile.size - compressedBlob.size)
+                / selectedFile.size) * 100;
+
+
+            if (saved > 0) {
+
+                savings.textContent =
+                    saved.toFixed(1) + "% smaller";
+
+            }
+
+            else {
+
+                savings.textContent =
+                    "No size reduction";
+
+            }
+
+
+            // -------------------------
+            // DOWNLOAD
+            // -------------------------
+
+            const extension =
+                outputFormat === "jpeg"
+                    ? "jpg"
+                    : outputFormat;
+
+            const fileName =
+                selectedFile.name
+                    .replace(/\.[^/.]+$/, "");
+
+            downloadBtn.href =
+                compressedURL;
+
+            downloadBtn.download =
+                fileName +
+                "-compressed." +
+                extension;
+
+
+            compressBtn.disabled = false;
+
+            compressBtn.textContent =
+                "Compress Again";
+
+
+        }, mimeType, qualityNumber);
+
 
     };
 
 
-    img.onerror = function () {
+    image.onerror = function () {
 
         alert("Unable to read this image.");
 
@@ -324,7 +357,7 @@ compressBtn.addEventListener("click", function () {
     };
 
 
-    img.src =
+    image.src =
         URL.createObjectURL(selectedFile);
 
 });
