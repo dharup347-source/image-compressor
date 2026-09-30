@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,12 +22,17 @@
 <main>
 
     <section class="hero">
-        <h1>Compress Images<br><span>Instantly.</span></h1>
+
+        <h1>
+            Compress Images<br>
+            <span>Instantly.</span>
+        </h1>
 
         <p>
-            Compress one or multiple images while keeping great quality.
+            Compress multiple images at once while keeping great quality.
             Your images never leave your device.
         </p>
+
     </section>
 
 
@@ -54,20 +58,28 @@
                 hidden
             >
 
-            <small>or drag & drop your images here</small>
+            <small>
+                or drag & drop here
+            </small>
 
         </div>
 
 
-        <div id="fileList" class="file-list"></div>
+        <div id="fileList"></div>
 
 
         <div class="controls">
 
             <div>
+
                 <label>
+
                     Quality
-                    <b id="qualityValue">80%</b>
+
+                    <b id="qualityValue">
+                        80%
+                    </b>
+
                 </label>
 
                 <input
@@ -77,18 +89,36 @@
                     max="100"
                     value="80"
                 >
+
             </div>
 
 
             <div>
-                <label for="format">Format</label>
+
+                <label for="format">
+                    Format
+                </label>
 
                 <select id="format">
-                    <option value="auto">Auto</option>
-                    <option value="jpeg">JPG</option>
-                    <option value="webp">WebP</option>
-                    <option value="png">PNG</option>
+
+                    <option value="auto">
+                        Auto
+                    </option>
+
+                    <option value="jpeg">
+                        JPG
+                    </option>
+
+                    <option value="webp">
+                        WebP
+                    </option>
+
+                    <option value="png">
+                        PNG
+                    </option>
+
                 </select>
+
             </div>
 
         </div>
@@ -104,9 +134,75 @@
     <section class="results" id="results">
 
         <div class="result-title">
-            <h2>Compression Results</h2>
-            <span id="savings">Waiting...</span>
+
+            <h2>
+                Compression Result
+            </h2>
+
+            <span id="savings">
+                Waiting...
+            </span>
+
         </div>
+
+
+        <!-- TOTAL SUMMARY -->
+
+        <div class="summary">
+
+            <div class="summary-item">
+
+                <strong id="totalImages">
+                    0
+                </strong>
+
+                <span>
+                    Images
+                </span>
+
+            </div>
+
+
+            <div class="summary-item">
+
+                <strong id="totalOriginal">
+                    0 B
+                </strong>
+
+                <span>
+                    Original
+                </span>
+
+            </div>
+
+
+            <div class="summary-item">
+
+                <strong id="totalCompressed">
+                    0 B
+                </strong>
+
+                <span>
+                    Compressed
+                </span>
+
+            </div>
+
+
+            <div class="summary-item">
+
+                <strong id="totalSaved">
+                    0 B
+                </strong>
+
+                <span>
+                    Saved
+                </span>
+
+            </div>
+
+        </div>
+
 
         <div id="resultsList"></div>
 
@@ -116,21 +212,47 @@
     <section class="features">
 
         <div>
+
             <strong>⚡</strong>
-            <h3>Fast</h3>
-            <p>Compression happens directly in your browser.</p>
+
+            <h3>
+                Fast
+            </h3>
+
+            <p>
+                Compression happens directly in your browser.
+            </p>
+
         </div>
 
+
         <div>
+
             <strong>🔒</strong>
-            <h3>Private</h3>
-            <p>Your images are never uploaded.</p>
+
+            <h3>
+                Private
+            </h3>
+
+            <p>
+                Your images are never uploaded.
+            </p>
+
         </div>
 
+
         <div>
+
             <strong>📱</strong>
-            <h3>Mobile</h3>
-            <p>Designed to work perfectly on phones.</p>
+
+            <h3>
+                Mobile
+            </h3>
+
+            <p>
+                Designed to work perfectly on phones.
+            </p>
+
         </div>
 
     </section>
@@ -139,11 +261,13 @@
 
 
 <footer>
+
     © 2026 ImageCompress
+
 </footer>
 
 
-<script src="script.js?v=5"></script>
+<script src="script.js?v=6"></script>
 
 </body>
 </html>
