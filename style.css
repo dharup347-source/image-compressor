@@ -406,4 +406,41 @@ footer {
     .features {
         grid-template-columns: 1fr;
     }
+
+/* V6 SUMMARY */
+
+.summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.summary-item {
+    background: #0d0a14;
+    border: 1px solid #282239;
+    border-radius: 14px;
+    padding: 16px 10px;
+    text-align: center;
+}
+
+.summary-item strong {
+    display: block;
+    color: #b99cff;
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+.summary-item span {
+    color: #aaa4b8;
+    font-size: 12px;
+}
+
+
+@media (max-width: 650px) {
+
+    .summary {
+        grid-template-columns: 1fr 1fr;
+    }
+
 }
