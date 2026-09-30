@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,7 @@
     <title>ImageCompress - Free Online Image Compressor</title>
 
     <meta name="description"
-        content="Compress JPG, PNG and WebP images online for free. Fast, private and works directly in your browser.">
+        content="Compress multiple JPG, PNG and WebP images online for free. Fast, private and works directly in your browser.">
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -23,8 +24,9 @@
 
     <section class="hero">
         <h1>Compress Images<br><span>Instantly.</span></h1>
+
         <p>
-            Reduce image file size while keeping great quality.
+            Compress one or multiple images while keeping great quality.
             Your images never leave your device.
         </p>
     </section>
@@ -36,24 +38,28 @@
 
             <div class="upload-icon">📷</div>
 
-            <h2>Select an Image</h2>
+            <h2>Select Images</h2>
 
             <p>JPG, PNG or WebP</p>
 
             <label for="fileInput" class="choose-btn">
-                Choose Image
+                Choose Images
             </label>
 
             <input
                 type="file"
                 id="fileInput"
                 accept="image/jpeg,image/png,image/webp"
+                multiple
                 hidden
             >
 
-            <small>or drag & drop here</small>
+            <small>or drag & drop your images here</small>
 
         </div>
+
+
+        <div id="fileList" class="file-list"></div>
 
 
         <div class="controls">
@@ -89,7 +95,7 @@
 
 
         <button id="compressBtn" disabled>
-            Compress Image
+            Compress Images
         </button>
 
     </section>
@@ -98,44 +104,11 @@
     <section class="results" id="results">
 
         <div class="result-title">
-            <h2>Compression Result</h2>
+            <h2>Compression Results</h2>
             <span id="savings">Waiting...</span>
         </div>
 
-
-        <div class="preview-grid">
-
-            <div class="preview-card">
-
-                <h3>Original</h3>
-
-                <div class="preview">
-                    <img id="originalPreview" alt="Original image">
-                </div>
-
-                <p id="originalSize">—</p>
-
-            </div>
-
-
-            <div class="preview-card">
-
-                <h3>Compressed</h3>
-
-                <div class="preview">
-                    <img id="compressedPreview" alt="Compressed image">
-                </div>
-
-                <p id="compressedSize">—</p>
-
-            </div>
-
-        </div>
-
-
-        <a id="downloadBtn" class="download-btn">
-            ⬇ Download Image
-        </a>
+        <div id="resultsList"></div>
 
     </section>
 
