@@ -13,24 +13,23 @@ const savings = document.getElementById("savings");
 
 let selectedFiles = [];
 
-
 // -------------------------
 // SIZE FORMAT
 // -------------------------
 
 function formatBytes(bytes) {
 
-    if (bytes < 1024) {
-        return bytes + " B";
-    }
+if (bytes < 1024) {  
+    return bytes + " B";  
+}  
 
-    if (bytes < 1024 * 1024) {
-        return (bytes / 1024).toFixed(1) + " KB";
-    }
+if (bytes < 1024 * 1024) {  
+    return (bytes / 1024).toFixed(1) + " KB";  
+}  
 
-    return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+
 }
-
 
 // -------------------------
 // SELECT FILES
@@ -38,13 +37,12 @@ function formatBytes(bytes) {
 
 fileInput.addEventListener("change", function () {
 
-    selectedFiles = Array.from(fileInput.files)
-        .filter(file => file.type.startsWith("image/"));
+selectedFiles = Array.from(fileInput.files)  
+    .filter(file => file.type.startsWith("image/"));  
 
-    showFileList();
+showFileList();
 
 });
-
 
 // -------------------------
 // SHOW FILE LIST
@@ -52,39 +50,38 @@ fileInput.addEventListener("change", function () {
 
 function showFileList() {
 
-    fileList.innerHTML = "";
+fileList.innerHTML = "";  
 
-    selectedFiles.forEach(function (file) {
+selectedFiles.forEach(function (file, index) {  
 
-        const item = document.createElement("div");
+    const item = document.createElement("div");  
 
-        item.className = "file-item";
+    item.className = "file-item";  
 
-        item.innerHTML = `
-            <span>🖼️ ${file.name}</span>
-            <span>${formatBytes(file.size)}</span>
-        `;
+    item.innerHTML = `  
+        <span>🖼️ ${file.name}</span>  
+        <span>${formatBytes(file.size)}</span>  
+    `;  
 
-        fileList.appendChild(item);
+    fileList.appendChild(item);  
 
-    });
+});  
 
-    compressBtn.disabled =
-        selectedFiles.length === 0;
+compressBtn.disabled =  
+    selectedFiles.length === 0;  
 
-    if (selectedFiles.length > 0) {
+if (selectedFiles.length > 0) {  
 
-        compressBtn.textContent =
-            "Compress " +
-            selectedFiles.length +
-            (selectedFiles.length === 1
-                ? " Image"
-                : " Images");
-
-    }
+    compressBtn.textContent =  
+        "Compress " +  
+        selectedFiles.length +  
+        (selectedFiles.length === 1  
+            ? " Image"  
+            : " Images");  
 
 }
 
+}
 
 // -------------------------
 // QUALITY
@@ -92,11 +89,10 @@ function showFileList() {
 
 quality.addEventListener("input", function () {
 
-    qualityValue.textContent =
-        quality.value + "%";
+qualityValue.textContent =  
+    quality.value + "%";
 
 });
-
 
 // -------------------------
 // DRAG & DROP
@@ -104,34 +100,31 @@ quality.addEventListener("input", function () {
 
 uploadBox.addEventListener("dragover", function (event) {
 
-    event.preventDefault();
+event.preventDefault();  
 
-    uploadBox.classList.add("dragging");
+uploadBox.classList.add("dragging");
 
 });
-
 
 uploadBox.addEventListener("dragleave", function () {
 
-    uploadBox.classList.remove("dragging");
+uploadBox.classList.remove("dragging");
 
 });
-
 
 uploadBox.addEventListener("drop", function (event) {
 
-    event.preventDefault();
+event.preventDefault();  
 
-    uploadBox.classList.remove("dragging");
+uploadBox.classList.remove("dragging");  
 
-    selectedFiles =
-        Array.from(event.dataTransfer.files)
-        .filter(file => file.type.startsWith("image/"));
+selectedFiles =  
+    Array.from(event.dataTransfer.files)  
+    .filter(file => file.type.startsWith("image/"));  
 
-    showFileList();
+showFileList();
 
 });
-
 
 // -------------------------
 // COMPRESS ONE IMAGE
@@ -139,118 +132,117 @@ uploadBox.addEventListener("drop", function (event) {
 
 function compressImage(file) {
 
-    return new Promise(function (resolve, reject) {
+return new Promise(function (resolve, reject) {  
 
-        const image = new Image();
+    const image = new Image();  
 
-        image.onload = function () {
+    image.onload = function () {  
 
-            const canvas =
-                document.createElement("canvas");
+        const canvas =  
+            document.createElement("canvas");  
 
-            canvas.width =
-                image.naturalWidth;
+        canvas.width =  
+            image.naturalWidth;  
 
-            canvas.height =
-                image.naturalHeight;
+        canvas.height =  
+            image.naturalHeight;  
 
-            const ctx =
-                canvas.getContext("2d");
+        const ctx =  
+            canvas.getContext("2d");  
 
-            let outputFormat =
-                format.value;
-
-
-            // AUTO FORMAT
-
-            if (outputFormat === "auto") {
-
-                if (file.type === "image/webp") {
-                    outputFormat = "webp";
-                }
-
-                else if (file.type === "image/png") {
-                    outputFormat = "png";
-                }
-
-                else {
-                    outputFormat = "jpeg";
-                }
-
-            }
+        let outputFormat =  
+            format.value;  
 
 
-            // WHITE BACKGROUND FOR JPG
+        // AUTO FORMAT  
 
-            if (outputFormat === "jpeg") {
+        if (outputFormat === "auto") {  
 
-                ctx.fillStyle = "#ffffff";
+            if (file.type === "image/webp") {  
+                outputFormat = "webp";  
+            }  
 
-                ctx.fillRect(
-                    0,
-                    0,
-                    canvas.width,
-                    canvas.height
-                );
+            else if (file.type === "image/png") {  
+                outputFormat = "png";  
+            }  
 
-            }
+            else {  
+                outputFormat = "jpeg";  
+            }  
 
-
-            ctx.drawImage(
-                image,
-                0,
-                0,
-                canvas.width,
-                canvas.height
-            );
+        }  
 
 
-            let mimeType =
-                "image/jpeg";
+        // WHITE BACKGROUND FOR JPG  
 
-            if (outputFormat === "webp") {
-                mimeType = "image/webp";
-            }
+        if (outputFormat === "jpeg") {  
 
-            if (outputFormat === "png") {
-                mimeType = "image/png";
-            }
+            ctx.fillStyle = "#ffffff";  
 
+            ctx.fillRect(  
+                0,  
+                0,  
+                canvas.width,  
+                canvas.height  
+            );  
 
-            canvas.toBlob(
-                function (blob) {
-
-                    if (!blob) {
-                        reject();
-                        return;
-                    }
-
-                    resolve({
-                        file: file,
-                        blob: blob,
-                        format: outputFormat
-                    });
-
-                },
-                mimeType,
-                Number(quality.value) / 100
-            );
-
-        };
+        }  
 
 
-        image.onerror = function () {
-            reject();
-        };
+        ctx.drawImage(  
+            image,  
+            0,  
+            0,  
+            canvas.width,  
+            canvas.height  
+        );  
 
 
-        image.src =
-            URL.createObjectURL(file);
+        let mimeType =  
+            "image/jpeg";  
 
-    });
+        if (outputFormat === "webp") {  
+            mimeType = "image/webp";  
+        }  
+
+        if (outputFormat === "png") {  
+            mimeType = "image/png";  
+        }  
+
+
+        canvas.toBlob(  
+            function (blob) {  
+
+                if (!blob) {  
+                    reject();  
+                    return;  
+                }  
+
+                resolve({  
+                    file: file,  
+                    blob: blob,  
+                    format: outputFormat  
+                });  
+
+            },  
+            mimeType,  
+            Number(quality.value) / 100  
+        );  
+
+    };  
+
+
+    image.onerror = function () {  
+        reject();  
+    };  
+
+
+    image.src =  
+        URL.createObjectURL(file);  
+
+});
 
 }
-
 
 // -------------------------
 // COMPRESS ALL
@@ -258,165 +250,140 @@ function compressImage(file) {
 
 compressBtn.addEventListener("click", async function () {
 
-    if (!selectedFiles.length) {
-        return;
-    }
+if (!selectedFiles.length) {  
+    return;  
+}  
 
-    compressBtn.disabled = true;
+compressBtn.disabled = true;  
 
-    resultsList.innerHTML = "";
-
-    results.style.display = "block";
-
-
-    let totalOriginal = 0;
-    let totalCompressed = 0;
+compressBtn.textContent =  
+    "Compressing...";  
 
 
-    for (let i = 0; i < selectedFiles.length; i++) {
+resultsList.innerHTML = "";  
 
-        // -------------------------
-        // PROGRESS
-        // -------------------------
+results.style.display = "block";  
 
-        compressBtn.textContent =
-            "Compressing " +
-            (i + 1) +
-            " / " +
-            selectedFiles.length;
+let totalOriginal = 0;  
+let totalCompressed = 0;  
 
 
-        try {
+for (let i = 0; i < selectedFiles.length; i++) {  
 
-            const result =
-                await compressImage(selectedFiles[i]);
+    try {  
 
-
-            totalOriginal +=
-                result.file.size;
-
-            totalCompressed +=
-                result.blob.size;
+        const result =  
+            await compressImage(selectedFiles[i]);  
 
 
-            const url =
-                URL.createObjectURL(result.blob);
+        totalOriginal +=  
+            result.file.size;  
+
+        totalCompressed +=  
+            result.blob.size;  
 
 
-            const extension =
-                result.format === "jpeg"
-                    ? "jpg"
-                    : result.format;
+        const url =  
+            URL.createObjectURL(result.blob);  
 
 
-            const baseName =
-                result.file.name
-                .replace(/\.[^/.]+$/, "");
+        const extension =  
+            result.format === "jpeg"  
+                ? "jpg"  
+                : result.format;  
 
 
-            const item =
-                document.createElement("div");
-
-            item.className =
-                "result-item";
+        const baseName =  
+            result.file.name  
+            .replace(/\.[^/.]+$/, "");  
 
 
-            const saved =
-                ((result.file.size -
-                    result.blob.size) /
-                    result.file.size) * 100;
+        const item =  
+            document.createElement("div");  
+
+        item.className =  
+            "result-item";  
 
 
-            item.innerHTML = `
-
-                <div class="result-image">
-                    <img src="${url}" alt="Compressed image">
-                </div>
-
-                <div class="result-info">
-
-                    <strong>${result.file.name}</strong>
-
-                    <p>
-                        ${formatBytes(result.file.size)}
-                        →
-                        ${formatBytes(result.blob.size)}
-                    </p>
-
-                    <p class="saved">
-                        ${
-                            saved > 0
-                            ? saved.toFixed(1) + "% smaller"
-                            : "No size reduction"
-                        }
-                    </p>
-
-                    <a
-                        href="${url}"
-                        download="${baseName}-compressed.${extension}"
-                        class="download-btn"
-                    >
-                        ⬇ Download
-                    </a>
-
-                </div>
-
-            `;
+        const saved =  
+            ((result.file.size -  
+                result.blob.size) /  
+                result.file.size) * 100;  
 
 
-            resultsList.appendChild(item);
+        item.innerHTML = `  
 
-        }
+            <div class="result-image">  
+                <img src="${url}" alt="Compressed image">  
+            </div>  
 
-        catch {
+            <div class="result-info">  
 
-            const error =
-                document.createElement("p");
+                <strong>${result.file.name}</strong>  
 
-            error.textContent =
-                "Could not compress " +
-                selectedFiles[i].name;
+                <p>  
+                    ${formatBytes(result.file.size)}  
+                    →  
+                    ${formatBytes(result.blob.size)}  
+                </p>  
 
-            resultsList.appendChild(error);
+                <p class="saved">  
+                    ${  
+                        saved > 0  
+                        ? saved.toFixed(1) + "% smaller"  
+                        : "No size reduction"  
+                    }  
+                </p>  
 
-        }
+                <a  
+                    href="${url}"  
+                    download="${baseName}-compressed.${extension}"  
+                    class="download-btn"  
+                >  
+                    ⬇ Download  
+                </a>  
 
-    }
+            </div>  
 
-
-    // -------------------------
-    // TOTAL SAVINGS
-    // -------------------------
-
-    const totalSaved =
-        totalOriginal > 0
-            ? ((totalOriginal - totalCompressed)
-                / totalOriginal) * 100
-            : 0;
-
-
-    savings.innerHTML = `
-        ${selectedFiles.length} image${selectedFiles.length === 1 ? "" : "s"}
-        •
-        ${formatBytes(totalOriginal)}
-        →
-        ${formatBytes(totalCompressed)}
-        •
-        ${
-            totalSaved > 0
-            ? totalSaved.toFixed(1) + "% smaller"
-            : "No overall reduction"
-        }
-    `;
+        `;  
 
 
-    // -------------------------
-    // FINISHED
-    // -------------------------
+        resultsList.appendChild(item);  
 
-    compressBtn.disabled = false;
+    }  
 
-    compressBtn.textContent =
-        "Compress Again";
+    catch {  
+
+        const error =  
+            document.createElement("p");  
+
+        error.textContent =  
+            "Could not compress " +  
+            selectedFiles[i].name;  
+
+        resultsList.appendChild(error);  
+
+    }  
+
+}  
+
+
+const totalSaved =  
+    ((totalOriginal -  
+        totalCompressed) /  
+        totalOriginal) * 100;  
+
+
+savings.textContent =  
+    totalSaved > 0  
+        ? totalSaved.toFixed(1) +  
+          "% smaller overall"  
+        : "No overall reduction";  
+
+
+compressBtn.disabled = false;  
+
+compressBtn.textContent =  
+    "Compress Again";
 
 });
