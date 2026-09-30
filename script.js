@@ -54,7 +54,7 @@ function showFileList() {
 
     fileList.innerHTML = "";
 
-    selectedFiles.forEach(function (file, index) {
+    selectedFiles.forEach(function (file) {
 
         const item = document.createElement("div");
 
@@ -264,19 +264,27 @@ compressBtn.addEventListener("click", async function () {
 
     compressBtn.disabled = true;
 
-    compressBtn.textContent =
-        "Compressing...";
-
-
     resultsList.innerHTML = "";
 
     results.style.display = "block";
+
 
     let totalOriginal = 0;
     let totalCompressed = 0;
 
 
     for (let i = 0; i < selectedFiles.length; i++) {
+
+        // -------------------------
+        // PROGRESS
+        // -------------------------
+
+        compressBtn.textContent =
+            "Compressing " +
+            (i + 1) +
+            " / " +
+            selectedFiles.length;
+
 
         try {
 
@@ -376,18 +384,35 @@ compressBtn.addEventListener("click", async function () {
     }
 
 
+    // -------------------------
+    // TOTAL SAVINGS
+    // -------------------------
+
     const totalSaved =
-        ((totalOriginal -
-            totalCompressed) /
-            totalOriginal) * 100;
+        totalOriginal > 0
+            ? ((totalOriginal - totalCompressed)
+                / totalOriginal) * 100
+            : 0;
 
 
-    savings.textContent =
-        totalSaved > 0
-            ? totalSaved.toFixed(1) +
-              "% smaller overall"
-            : "No overall reduction";
+    savings.innerHTML = `
+        ${selectedFiles.length} image${selectedFiles.length === 1 ? "" : "s"}
+        •
+        ${formatBytes(totalOriginal)}
+        →
+        ${formatBytes(totalCompressed)}
+        •
+        ${
+            totalSaved > 0
+            ? totalSaved.toFixed(1) + "% smaller"
+            : "No overall reduction"
+        }
+    `;
 
+
+    // -------------------------
+    // FINISHED
+    // -------------------------
 
     compressBtn.disabled = false;
 
