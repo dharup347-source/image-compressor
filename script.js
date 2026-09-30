@@ -11,6 +11,11 @@ const results = document.getElementById("results");
 const resultsList = document.getElementById("resultsList");
 const savings = document.getElementById("savings");
 
+const totalImages = document.getElementById("totalImages");
+const totalOriginal = document.getElementById("totalOriginal");
+const totalCompressed = document.getElementById("totalCompressed");
+const totalSaved = document.getElementById("totalSaved");
+
 let selectedFiles = [];
 
 
@@ -54,7 +59,7 @@ function showFileList() {
 
     fileList.innerHTML = "";
 
-    selectedFiles.forEach(function (file, index) {
+    selectedFiles.forEach(function (file) {
 
         const item = document.createElement("div");
 
@@ -267,13 +272,27 @@ compressBtn.addEventListener("click", async function () {
     compressBtn.textContent =
         "Starting compression...";
 
-
     resultsList.innerHTML = "";
 
     results.style.display = "block";
 
-    let totalOriginal = 0;
-    let totalCompressed = 0;
+    let totalOriginalSize = 0;
+    let totalCompressedSize = 0;
+
+
+    // RESET SUMMARY
+
+    totalImages.textContent =
+        selectedFiles.length;
+
+    totalOriginal.textContent =
+        "Calculating...";
+
+    totalCompressed.textContent =
+        "Calculating...";
+
+    totalSaved.textContent =
+        "Calculating...";
 
 
     for (let i = 0; i < selectedFiles.length; i++) {
@@ -295,10 +314,10 @@ compressBtn.addEventListener("click", async function () {
                 await compressImage(selectedFiles[i]);
 
 
-            totalOriginal +=
+            totalOriginalSize +=
                 result.file.size;
 
-            totalCompressed +=
+            totalCompressedSize +=
                 result.blob.size;
 
 
@@ -314,7 +333,7 @@ compressBtn.addEventListener("click", async function () {
 
             const baseName =
                 result.file.name
-                .replace(/\.[^/.]+$/, "");
+                    .replace(/\.[^/.]+$/, "");
 
 
             const item =
@@ -333,33 +352,52 @@ compressBtn.addEventListener("click", async function () {
             item.innerHTML = `
 
                 <div class="result-image">
-                    <img src="${url}" alt="Compressed image">
+
+                    <img
+                        src="${url}"
+                        alt="Compressed image"
+                    >
+
                 </div>
+
 
                 <div class="result-info">
 
-                    <strong>${result.file.name}</strong>
+                    <strong>
+                        ${result.file.name}
+                    </strong>
+
 
                     <p>
+
                         ${formatBytes(result.file.size)}
+
                         →
+
                         ${formatBytes(result.blob.size)}
+
                     </p>
 
+
                     <p class="saved">
+
                         ${
                             saved > 0
                             ? saved.toFixed(1) + "% smaller"
                             : "No size reduction"
                         }
+
                     </p>
+
 
                     <a
                         href="${url}"
                         download="${baseName}-compressed.${extension}"
                         class="download-btn"
                     >
+
                         ⬇ Download
+
                     </a>
 
                 </div>
@@ -368,6 +406,25 @@ compressBtn.addEventListener("click", async function () {
 
 
             resultsList.appendChild(item);
+
+
+            // UPDATE SUMMARY LIVE
+
+            const currentSaved =
+                totalOriginalSize -
+                totalCompressedSize;
+
+
+            totalOriginal.textContent =
+                formatBytes(totalOriginalSize);
+
+            totalCompressed.textContent =
+                formatBytes(totalCompressedSize);
+
+            totalSaved.textContent =
+                currentSaved > 0
+                    ? formatBytes(currentSaved)
+                    : "0 B";
 
         }
 
@@ -387,18 +444,48 @@ compressBtn.addEventListener("click", async function () {
     }
 
 
-    const totalSaved =
-        ((totalOriginal -
-            totalCompressed) /
-            totalOriginal) * 100;
+    // -------------------------
+    // FINAL SAVINGS
+    // -------------------------
+
+    const totalSavedPercent =
+        totalOriginalSize > 0
+            ? ((totalOriginalSize -
+                totalCompressedSize) /
+                totalOriginalSize) * 100
+            : 0;
 
 
     savings.textContent =
-        totalSaved > 0
-            ? totalSaved.toFixed(1) +
+        totalSavedPercent > 0
+            ? totalSavedPercent.toFixed(1) +
               "% smaller overall"
             : "No overall reduction";
 
+
+    // FINAL SUMMARY
+
+    totalImages.textContent =
+        selectedFiles.length;
+
+    totalOriginal.textContent =
+        formatBytes(totalOriginalSize);
+
+    totalCompressed.textContent =
+        formatBytes(totalCompressedSize);
+
+    totalSaved.textContent =
+        totalOriginalSize > totalCompressedSize
+            ? formatBytes(
+                totalOriginalSize -
+                totalCompressedSize
+            )
+            : "0 B";
+
+
+    // -------------------------
+    // FINISHED
+    // -------------------------
 
     compressBtn.disabled = false;
 
