@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dharup347-source.github.io/image-compressor/sitemap.xml
